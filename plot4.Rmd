@@ -1,0 +1,46 @@
+---
+title: "Exploratory Data Analysis"
+---
+
+
+```{r}
+namefile <- "epower_consumption.zip"
+urlfile <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip"
+#load package
+library(data.table)
+# load data
+if (!file.exists(namefile)){
+  download.file(urlfile, destfile = namefile)
+  unzip(namefile)
+}
+householdConsumption<- fread("household_power_consumption.txt", na.strings = "?")
+```
+
+## subsetting data
+```{r}
+dates <- c("1/2/2007","2/2/2007")
+householdConsumption <- householdConsumption[householdConsumption$Date %in% dates,]
+timedat <- strptime(paste(householdConsumption$Date,householdConsumption$Time, sep = ""), "%d/%m/%Y %H:%M:%S")
+activeG <- as.numeric(householdConsumption$Global_active_power)
+voltage <- as.numeric(householdConsumption$Voltage)
+reactiveG <- as.numeric(householdConsumption$Global_reactive_power)
+metering1 <- as.numeric(householdConsumption$Sub_metering_1)
+metering2 <- as.numeric(householdConsumption$Sub_metering_2)
+metering3 <- as.numeric(householdConsumption$Sub_metering_3)
+```
+## ploting to png4
+```{r}
+png("plot4.png", width=480, height=480)
+par(mfrow = c(2,2))
+plot(timedat,activeG, type = "l", xlab = "", ylab = "Global Active Power(kilowatts) ")
+
+plot(timedat,voltage, type = "l", xlab = "datetime", ylab = "voltage")
+
+plot(timedat,metering1, type = "l", xlab = "", ylab = "Energy Submetering")
+lines(timedat,metering2, type = "l", col ="red")
+lines(timedat, metering3, type = "l", col= "blue")
+legend("topright", c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"), lty=1, lwd=2.5, col=c("black", "red", "blue"))
+plot(timedat,reactiveG, type = "l", xlab = "datetime", ylab = "Global_reactive_power")
+
+dev.off()
+```
